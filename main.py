@@ -49,6 +49,33 @@ def process_image(input_image, confidence_threshold):
     except Exception as e:
         return None, f"Error: {str(e)}"
 
+        import cv2
+
+def process_image_v2(input_image, confidence_threshold):
+    try:
+        # Ensure confidence_threshold is a valid number
+        if not (0.0 <= confidence_threshold <= 1.0):
+            raise ValueError("Confidence threshold must be between 0.0 and 1.0")
+        
+        # Convert the Gradio image (RGB) to OpenCV format (BGR)
+        image = cv2.cvtColor(input_image, cv2.COLOR_RGB2BGR)
+
+        # Process the image for text detection
+        output_image, detected_text = detect_text(image, min_confidence=confidence_threshold)
+
+        # Convert the processed image back to RGB for Gradio
+        output_image = cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB)
+
+        return output_image, detected_text
+
+    except cv2.error as cv_err:
+        return None, f"OpenCV error: {cv_err}"
+    except ValueError as val_err:
+        return None, f"Value error: {val_err}"
+    except Exception as e:
+        return None, f"Unexpected error: {e}"
+
+
 # Crear la interfaz de Gradio
 iface = gr.Interface(
     fn=process_image,
